@@ -1,10 +1,4 @@
-
 library(shiny)
-
-
-
-
-
 library(tidyverse)
 library(haven)
 library(here)
@@ -20,8 +14,6 @@ nsims <- 1e2
 
 # Before each deployment: copy and paste 'data' and 'rawdata' folders into 'shiny_app\'
 source("all_analysis.R")
-
-
 
 shinyUI( 
     fluidPage(
