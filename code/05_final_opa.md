@@ -1,7 +1,7 @@
 ---
 pdf_document:
   extra_dependencies: ["xcolor"]
-date: "17 April, 2020"
+date: "26 April, 2020"
 output:
   html_document:
     code_folding: hide
@@ -275,7 +275,7 @@ table_2 <- matrix("", nrow = 1, ncol = 2)
 
 </details>
 
-Benefits are equal to the addtional earnings that indivudual are expected to generate due to a deworming treatment. These additional earrnings are computed as a discounted sum over their working lifetime.  
+Benefits are equal to the additional earnings that indivudual are expected to generate due to a deworming treatment. These additional earrnings are computed as a discounted sum over their working lifetime.  
 
 
 <details><summary>Show all the details</summary>
@@ -322,7 +322,7 @@ The main differences in costs have to do with whether indirect costs are include
 
 ### The discounting rate  
 
-All approaches use the real interest rate ($r$) as a the discounting rate. This is obtained from the interest rate on goverment bonds ($i$) minus the inflation rate ($\pi$).
+All approaches use the real interest rate ($r$) as the discounting rate. This is obtained from the interest rate on goverment bonds ($i$) minus the inflation rate ($\pi$).
 
 <details><summary>Show all the details</summary>
 
@@ -883,14 +883,32 @@ chunk_cost2 <- function(){
         sum( ( 1 / (1 + interest_r_var) )^index_t *
                 delta_ed_s * cost_of_schooling_var) +
         (s2_var * q2_var  - s1_var * q1_var)
-      }
+    }
+    
+npv_rcc <- function(initial_costs_var, discount_var) {
+  sapply(
+    discount_var, function(x) sum(
+    c( rep(-initial_costs_var, 100), rep(23, 600) ) * 
+      ( 1 / (1 + x)^ (0:699) ) 
+    )
+  )
+}
 
+rates <- seq(0.01, 0.1, length.out = 100)
+plot(cbind(rates, npv_rcc(1, rates)), type = "l", ylim = c(-100,100))
+abline(h=0, col = 'red')    
+lines(cbind(rates, npv_rcc(0.1, rates)), lty = 2)
+lines(cbind(rates, npv_rcc(3, rates)), lty = 3)
 ###############################################################################
 ###############################################################################  
     return(list("cost2_f" = cost2_f))    # Try to return only functions
 }
 invisible( list2env(chunk_cost2(),.GlobalEnv) )
+```
 
+![](05_final_opa_files/figure-html/cost2-1.png)<!-- -->
+
+```r
 ##### Execute values of the functions above when needed for the text:  
 ```
 
@@ -1975,7 +1993,8 @@ Adding all indirect cost, the average cost of deworming each child over the enti
 
 #### Cost of schooling
 
-Computing the indirect costs on the education system is calculated similarly to approach 1: the cost per student is multiplied by the increase in school attendance due to deworming. However, under approach 2 we assume that the additional burden on educational institutions is imposed for nine years at most.  
+The indirect cost on the education system is calculated similarly to approach 1: the cost per student is multiplied by the increase in school attendance due to deworming. However, under approach 2 the additional cost of education is discounted because we assume that the additional burden on educational institutions is imposed for nine years at most. 
+
 <details><summary>Equation</summary>
 We account for the cost of schooling since deworming medication increases school attendance and may put pressure on educational institutions. Schooling costs are given by the discounted sum of the additional cost of education per child as a result of deworming.
 
@@ -2215,6 +2234,9 @@ Over this nine year period, students attended school for an additional 0.15 year
 
 ### Costs ("$C$")
 
+For each country where Evidence Action provides technical assistance, GiveWell estimates the deworming cost per child using a combination of technical assistance costs, indirect and direct government expenditure, and partner costs. GiveWell's estimated cost is a weighted average of the unit costs across countries: for each country, the annual per capita cost is weighted by the proportion of the country's deworming costs relative to the total deworming costs across countries.
+
+<details><summary>Equation</summary>
 \begin{equation}
 C = \sum_{i \in Countries } \omega_{i} c_{i}
 
@@ -2230,7 +2252,7 @@ The final cost is a weighted average of the unit cost across countries.
 
 - $\omega_{i}$: Weight for the weighted average.  
 - $c_{i}$: Total cost per child, per year in country $i$.  
-
+</details>
 
 ```r
 # - inputs: nothing
